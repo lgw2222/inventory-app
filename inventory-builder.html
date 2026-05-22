@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Inventory Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f0eb;
+  --surface: #ffffff;
+  --accent: #e8622a;
+  --accent2: #2a4de8;
+  --text: #1a1410;
+  --text2: #6b5f55;
+  --border: #ddd8d0;
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* BG CUSTOMIZER */
+body.bg-dark { --bg: #1a1410; --surface: #2a2420; --text: #f5f0eb; --text2: #a09080; --border: #3a3028; }
+body.bg-sage { --bg: #e8ede8; --surface: #f5f8f5; --text: #1a2a1a; --text2: #5a7a5a; --border: #c8d8c8; --accent: #3a7a3a; }
+body.bg-slate { --bg: #e8edf2; --surface: #f5f7fa; --text: #1a2030; --text2: #5a6878; --border: #c8d0dc; --accent: #2a5a9e; }
+body.bg-rose { --bg: #f5e8ec; --surface: #fff5f7; --text: #2a1018; --text2: #8a5060; --border: #e0c8d0; --accent: #c02858; }
+body.bg-gold { --bg: #f5f0e0; --surface: #fffdf5; --text: #2a2010; --text2: #8a7050; --border: #e0d8b0; --accent: #b87820; }
+
+header {
+  background: var(--text);
+  color: var(--bg);
+  padding: 20px 20px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.app-title { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+.app-title span { opacity: 0.5; font-weight: 400; }
+.header-btns { display: flex; gap: 8px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 18px; border-radius: 50px; border: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+  transition: all 0.15s; white-space: nowrap;
+}
+.btn:active { transform: scale(0.96); }
+.btn-accent { background: var(--accent); color: white; }
+.btn-ghost { background: rgba(255,255,255,0.12); color: inherit; }
+.btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
+.btn-dark { background: var(--text); color: var(--bg); }
+.btn-sm { padding: 7px 14px; font-size: 13px; }
+.btn-icon { width: 38px; height: 38px; padding: 0; border-radius: 50%; }
+
+/* NAV TABS */
+.tabs {
+  display: flex;
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex: 1; min-width: fit-content; padding: 12px 16px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+  color: var(--text2); background: none; border: none; cursor: pointer;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: all 0.15s; white-space: nowrap;
+}
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* MAIN CONTENT */
+.screen { display: none; padding: 16px; }
+.screen.active { display: block; }
+
+/* CUSTOMIZE PANEL */
+.section-label {
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2);
+  margin-bottom: 10px; margin-top: 20px;
+}
+.section-label:first-child { margin-top: 0; }
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+/* APP NAME EDITOR */
+.name-input {
+  width: 100%; font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700;
+  border: none; background: transparent; color: var(--text); outline: none;
+  border-bottom: 2px dashed var(--border); padding-bottom: 6px;
+}
+.name-input::placeholder { color: var(--border); }
+
+/* BG COLOR SWATCHES */
+.swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.swatch {
+  width: 44px; height: 44px; border-radius: 50%; border: 3px solid transparent;
+  cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+}
+.swatch.active { border-color: var(--text); transform: scale(1.1); }
+
+/* ACCENT COLOR */
+.accent-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.accent-dot {
+  width: 36px; height: 36px; border-radius: 50%; border: 3px solid transparent;
+  cursor: pointer; transition: all 0.15s;
+}
+.accent-dot.active { border-color: var(--text); transform: scale(1.1); }
+
+/* FIELDS BUILDER */
+.field-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.field-row:last-child { border-bottom: none; }
+.field-info { flex: 1; }
+.field-name { font-weight: 600; font-size: 15px; }
+.field-type { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.field-drag { color: var(--border); font-size: 20px; cursor: grab; padding: 0 4px; }
+
+.toggle {
+  width: 44px; height: 26px; border-radius: 13px; background: var(--border);
+  position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+}
+.toggle.on { background: var(--accent); }
+.toggle::after {
+  content: ''; position: absolute; width: 20px; height: 20px; border-radius: 50%;
+  background: white; top: 3px; left: 3px; transition: left 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle.on::after { left: 21px; }
+
+/* ADD FIELD MODAL */
+.fab {
+  position: fixed; bottom: 24px; right: 24px;
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--accent); color: white; border: none;
+  font-size: 28px; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; z-index: 200;
+}
+.fab:active { transform: scale(0.92); }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 500; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: 24px 24px 0 0;
+  width: 100%; max-width: 480px; padding: 20px 20px 32px;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-handle {
+  width: 40px; height: 4px; background: var(--border);
+  border-radius: 2px; margin: 0 auto 16px;
+}
+.modal-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 20px; }
+
+.input-group { margin-bottom: 14px; }
+.input-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+.input, .select {
+  width: 100%; padding: 12px 14px; border-radius: 12px;
+  border: 2px solid var(--border); background: var(--bg);
+  font-family: 'DM Sans', sans-serif; font-size: 15px; color: var(--text);
+  outline: none; transition: border-color 0.15s;
+}
+.input:focus, .select:focus { border-color: var(--accent); }
+
+.type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.type-btn {
+  padding: 12px; border-radius: 12px; border: 2px solid var(--border);
+  background: var(--bg); cursor: pointer; text-align: center;
+  transition: all 0.15s;
+}
+.type-btn.selected { border-color: var(--accent); background: var(--accent); color: white; }
+.type-btn .type-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+.type-btn .type-label { font-size: 12px; font-weight: 600; }
+
+/* ITEMS SCREEN */
+.items-toolbar {
+  display: flex; gap: 8px; margin-bottom: 14px; align-items: center;
+}
+.search-wrap { flex: 1; position: relative; }
+.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 16px; }
+.search-input {
+  width: 100%; padding: 10px 12px 10px 38px; border-radius: 50px;
+  border: 2px solid var(--border); background: var(--surface);
+  font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); outline: none;
+}
+
+.view-toggle { display: flex; background: var(--surface); border-radius: 50px; border: 2px solid var(--border); overflow: hidden; }
+.view-btn { padding: 8px 14px; border: none; background: none; cursor: pointer; font-size: 16px; }
+.view-btn.active { background: var(--accent); color: white; }
+
+/* ITEM CARDS */
+.items-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.items-list { display: flex; flex-direction: column; gap: 8px; }
+
+.item-card {
+  background: var(--surface); border-radius: var(--radius);
+  border: 1.5px solid var(--border); overflow: hidden;
+  box-shadow: var(--shadow); cursor: pointer; transition: all 0.15s;
+}
+.item-card:active { transform: scale(0.97); }
+.item-photo {
+  width: 100%; aspect-ratio: 1; object-fit: cover; display: block; background: var(--bg);
+  font-size: 40px; display: flex; align-items: center; justify-content: center;
+}
+.item-body { padding: 10px 12px 12px; }
+.item-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-preview { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 50px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px;
+}
+
+/* LIST ITEM */
+.item-list-card {
+  background: var(--surface); border-radius: 12px; border: 1.5px solid var(--border);
+  padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: all 0.15s;
+}
+.item-list-card:active { transform: scale(0.98); }
+.item-list-thumb {
+  width: 48px; height: 48px; border-radius: 10px; overflow: hidden; flex-shrink: 0;
+  background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.item-list-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.item-list-info { flex: 1; min-width: 0; }
+.item-list-name { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-list-sub { font-size: 12px; color: var(--text2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ITEM DETAIL */
+.detail-photo-wrap {
+  width: 100%; aspect-ratio: 4/3; background: var(--surface); border-radius: var(--radius);
+  overflow: hidden; margin-bottom: 16px; display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border); font-size: 80px;
+}
+.detail-photo-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.detail-name { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 12px; }
+.detail-field { display: flex; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: flex-start; gap: 12px; }
+.detail-field:last-child { border-bottom: none; }
+.detail-field-label { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; min-width: 90px; padding-top: 2px; }
+.detail-field-value { font-size: 15px; font-weight: 500; flex: 1; word-break: break-word; }
+.detail-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+/* ADD ITEM */
+.photo-upload-btn {
+  width: 100%; aspect-ratio: 16/9; border-radius: var(--radius);
+  border: 3px dashed var(--border); background: var(--surface);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; cursor: pointer; color: var(--text2); margin-bottom: 16px; transition: all 0.15s;
+}
+.photo-upload-btn:active { border-color: var(--accent); color: var(--accent); }
+.photo-preview {
+  width: 100%; aspect-ratio: 16/9; border-radius: var(--radius); object-fit: cover;
+  margin-bottom: 16px; display: none;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+  font-size: 40px; color: var(--border);
+}
+.empty-state p { font-size: 15px; color: var(--text2); margin-top: 12px; font-weight: 500; }
+
+/* STATUS BADGES */
+.status-available { background: #e8f5e9; color: #2e7d32; }
+.status-sold { background: #fce4ec; color: #c62828; }
+.status-pending { background: #fff8e1; color: #f57f17; }
+.status-custom { background: var(--bg); color: var(--text2); border: 1px solid var(--border); }
+
+/* TEMPLATE PICKER */
+.template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.template-card {
+  background: var(--surface); border-radius: 14px; border: 2px solid var(--border);
+  padding: 14px 12px; cursor: pointer; text-align: center; transition: all 0.15s;
+}
+.template-card:active { transform: scale(0.96); }
+.template-card.selected { border-color: var(--accent); background: var(--accent); color: white; }
+.template-icon { font-size: 28px; margin-bottom: 6px; }
+.template-name { font-size: 13px; font-weight: 700; }
+.template-desc { font-size: 11px; opacity: 0.7; margin-top: 3px; }
+
+/* STATS BAR */
+.stats-bar {
+  display: flex; gap: 0; background: var(--surface); border-radius: 14px;
+  border: 1.5px solid var(--border); overflow: hidden; margin-bottom: 14px;
+}
+.stat { flex: 1; padding: 12px 8px; text-align: center; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat-num { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--accent); }
+.stat-lbl { font-size: 10px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+/* BACK BTN */
+.back-btn {
+  display: flex; align-items: center; gap: 6px; background: none; border: none;
+  color: var(--text2); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; padding: 0; margin-bottom: 16px;
+}
+.back-btn:active { opacity: 0.6; }
+
+/* COLOR INPUT */
+.color-input-row { display: flex; align-items: center; gap: 10px; }
+.color-input { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; padding: 0; }
+
+/* MEDIA */
+@media(max-width:360px) {
+  .items-grid { grid-template-columns: 1fr; }
+  .template-grid { grid-template-columns: 1fr; }
+}
+
+/* Transitions */
+.screen { animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.pill-filter { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 12px; scrollbar-width: none; }
+.pill-filter::-webkit-scrollbar { display: none; }
+.pill {
+  padding: 6px 14px; border-radius: 50px; border: 2px solid var(--border);
+  background: var(--surface); font-size: 13px; font-weight: 600; color: var(--text2);
+  cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.pill.active { border-color: var(--accent); background: var(--accent); color: white; }
+
+.delete-btn {
+  background: #fee2e2; color: #dc2626; border: none; border-radius: 50px;
+  padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="app-title" id="headerTitle">My Inventory</div>
+  <div class="header-btns">
+    <button class="btn btn-ghost btn-sm" onclick="showScreen('customize')">⚙️ Customize</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('items')" id="tab-items">📦 Items</button>
+  <button class="tab" onclick="switchTab('customize')" id="tab-customize">🎨 Design</button>
+  <button class="tab" onclick="switchTab('fields')" id="tab-fields">🔧 Fields</button>
+</div>
+
+<!-- ITEMS SCREEN -->
+<div class="screen active" id="screen-items">
+  <div style="padding:16px 16px 0">
+    <div class="stats-bar" id="statsBar" style="display:none">
+      <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total</div></div>
+      <div class="stat"><div class="stat-num" id="statActive">0</div><div class="stat-lbl" id="statActiveLabel">Active</div></div>
+      <div class="stat"><div class="stat-num" id="statValue">$0</div><div class="stat-lbl" id="statValueLabel">Value</div></div>
+    </div>
+    <div class="items-toolbar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" placeholder="Search..." id="searchInput" oninput="renderItems()">
+      </div>
+      <div class="view-toggle">
+        <button class="view-btn active" id="viewGrid" onclick="setView('grid')">▦</button>
+        <button class="view-btn" id="viewList" onclick="setView('list')">☰</button>
+      </div>
+    </div>
+    <div class="pill-filter" id="filterPills"></div>
+  </div>
+  <div style="padding:0 16px 100px" id="itemsContainer">
+    <div class="empty-state">
+      <div>📦</div>
+      <p>No items yet.<br>Tap <strong>+</strong> to add your first one!</p>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMIZE SCREEN -->
+<div class="screen" id="screen-customize">
+  <div style="padding-bottom:100px">
+    <div class="section-label">App Name</div>
+    <div class="card">
+      <input class="name-input" id="appNameInput" placeholder="My Inventory" maxlength="40" oninput="updateAppName()">
+    </div>
+
+    <div class="section-label">Quick Start Template</div>
+    <div class="card">
+      <div class="template-grid" id="templateGrid"></div>
+    </div>
+
+    <div class="section-label">Background Color</div>
+    <div class="card">
+      <div class="swatches" id="bgSwatches"></div>
+    </div>
+
+    <div class="section-label">Accent Color</div>
+    <div class="card">
+      <div class="accent-swatches" id="accentSwatches"></div>
+      <div class="color-input-row" style="margin-top:10px">
+        <input type="color" class="color-input" id="customAccentInput" onchange="setCustomAccent(this.value)">
+        <span style="font-size:13px;color:var(--text2)">Custom color</span>
+      </div>
+    </div>
+
+    <div class="section-label">Status Labels</div>
+    <div class="card" id="statusLabelsCard">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Customize what your status options are called</p>
+      <div id="statusLabelsList"></div>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px;width:100%" onclick="addStatusLabel()">+ Add Status</button>
+    </div>
+
+    <div class="section-label">Item Emoji / Icon</div>
+    <div class="card">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Default emoji for items without a photo</p>
+      <div id="emojiGrid" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- FIELDS SCREEN -->
+<div class="screen" id="screen-fields">
+  <div style="padding-bottom:100px">
+    <div class="card" style="margin-bottom:12px">
+      <p style="font-size:13px;color:var(--text2)">These are the fields that appear on each item. Toggle to show/hide, or tap <strong>+ Add Field</strong> to create a custom one.</p>
+    </div>
+    <div class="card" id="fieldsList"></div>
+  </div>
+</div>
+
+<!-- DETAIL SCREEN -->
+<div class="screen" id="screen-detail">
+  <div style="padding-bottom:100px">
+    <button class="back-btn" onclick="goBack()">← Back</button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<!-- ADD ITEM SCREEN -->
+<div class="screen" id="screen-add">
+  <div style="padding-bottom:100px">
+    <button class="back-btn" onclick="goBack()">← Cancel</button>
+    <h2 style="font-family:'Syne',sans-serif;font-weight:800;margin-bottom:16px" id="addItemTitle">Add Item</h2>
+    <label>
+      <div class="photo-upload-btn" id="photoUploadBtn">
+        <div style="font-size:36px">📷</div>
+        <div style="font-weight:600">Add Photo</div>
+        <div style="font-size:12px;opacity:0.6">Tap to upload</div>
+      </div>
+      <img id="photoPreview" class="photo-preview">
+      <input type="file" accept="image/*" id="photoInput" style="display:none" onchange="handlePhoto(this)">
+    </label>
+    <div id="addFormFields"></div>
+    <button class="btn btn-accent" style="width:100%;padding:14px;font-size:16px;margin-top:8px" onclick="saveItem()">Save Item</button>
+  </div>
+</div>
+
+<!-- ADD FIELD MODAL -->
+<div class="modal-overlay" id="addFieldModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Custom Field</div>
+    <div class="input-group">
+      <div class="input-label">Field Name</div>
+      <input class="input" id="newFieldName" placeholder="e.g. Brand, Color, Weight…">
+    </div>
+    <div class="input-group">
+      <div class="input-label">Field Type</div>
+      <div class="type-grid">
+        <div class="type-btn selected" onclick="selectFieldType('text',this)">
+          <span class="type-icon">✏️</span><span class="type-label">Text</span>
+        </div>
+        <div class="type-btn" onclick="selectFieldType('number',this)">
+          <span class="type-icon">🔢</span><span class="type-label">Number</span>
+        </div>
+        <div class="type-btn" onclick="selectFieldType('money',this)">
+          <span class="type-icon">💵</span><span class="type-label">Money</span>
+        </div>
+        <div class="type-btn" onclick="selectFieldType('date',this)">
+          <span class="type-icon">📅</span><span class="type-label">Date</span>
+        </div>
+        <div class="type-btn" onclick="selectFieldType('select',this)">
+          <span class="type-icon">📋</span><span class="type-label">Dropdown</span>
+        </div>
+        <div class="type-btn" onclick="selectFieldType('note',this)">
+          <span class="type-icon">📝</span><span class="type-label">Notes</span>
+        </div>
+      </div>
+    </div>
+    <div class="input-group" id="selectOptionsGroup" style="display:none">
+      <div class="input-label">Options (one per line)</div>
+      <textarea class="input" id="selectOptions" rows="4" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
+    </div>
+    <div class="input-group">
+      <div class="input-label">Required?</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="toggle" id="requiredToggle" onclick="this.classList.toggle('on')"></div>
+        <span style="font-size:14px;color:var(--text2)">Must fill in to save</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal('addFieldModal')">Cancel</button>
+      <button class="btn btn-accent" style="flex:1" onclick="saveField()">Add Field</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT ITEM MODAL (reused for add) -->
+<div class="modal-overlay" id="statusModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="statusModalTitle">Update Status</div>
+    <div id="statusModalContent"></div>
+    <button class="btn btn-outline" style="width:100%;margin-top:8px" onclick="closeModal('statusModal')">Cancel</button>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" id="mainFab" onclick="handleFab()">+</button>
+
+<script>
+// ========== STATE ==========
+let appState = {
+  name: 'My Inventory',
+  bg: 'default',
+  accent: '#e8622a',
+  emoji: '📦',
+  statusLabels: ['Available','Sold','Pending'],
+  viewMode: 'grid',
+  currentScreen: 'items',
+  prevScreen: null,
+  fields: [
+    { id:'name', label:'Name', type:'text', enabled:true, required:true, system:true },
+    { id:'status', label:'Status', type:'status', enabled:true, required:false, system:true },
+    { id:'desc', label:'Description', type:'note', enabled:true, required:false, system:false },
+    { id:'price_paid', label:'Price Paid', type:'money', enabled:true, required:false, system:false },
+    { id:'price_sold', label:'Price Sold', type:'money', enabled:false, required:false, system:false },
+    { id:'location', label:'Location', type:'text', enabled:false, required:false, system:false },
+    { id:'date_added', label:'Date Added', type:'date', enabled:false, required:false, system:false },
+  ],
+  items: [],
+  editingItem: null,
+  newFieldType: 'text',
+};
+
+const BG_THEMES = [
+  { id:'default', label:'Warm', color:'#f5f0eb' },
+  { id:'dark', label:'Dark', color:'#2a2420' },
+  { id:'sage', label:'Sage', color:'#e8ede8' },
+  { id:'slate', label:'Slate', color:'#e8edf2' },
+  { id:'rose', label:'Rose', color:'#f5e8ec' },
+  { id:'gold', label:'Gold', color:'#f5f0e0' },
+];
+
+const ACCENT_COLORS = ['#e8622a','#2a4de8','#3a7a3a','#c02858','#b87820','#6c2ab8','#1a9a9a','#333333'];
+
+const EMOJIS = ['📦','🛍️','🏷️','🎁','👗','👒','🛋️','🖼️','💍','📱','🔧','🌿','🎨','📚','🧸','🍵'];
+
+const TEMPLATES = [
+  { id:'vintage', name:'Vintage Shop', icon:'🛍️', desc:'Buy/sell tracking', fields:['name','status','desc','price_paid','price_sold'] },
+  { id:'tools', name:'Tool Library', icon:'🔧', desc:'Borrow & return', fields:['name','status','desc','location'] },
+  { id:'wardrobe', name:'Wardrobe', icon:'👗', desc:'Clothing & outfits', fields:['name','status','desc','price_paid'] },
+  { id:'collectibles', name:'Collectibles', icon:'🏆', desc:'Collection tracker', fields:['name','status','desc','price_paid'] },
+  { id:'supplies', name:'Supplies', icon:'📦', desc:'Stock management', fields:['name','status','desc','location'] },
+  { id:'rental', name:'Rentals', icon:'🏠', desc:'Rent out items', fields:['name','status','desc','price_sold'] },
+];
+
+function save() { try { localStorage.setItem('inv_builder_v2', JSON.stringify(appState)); } catch(e){} }
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('inv_builder_v2'));
+    if (d) appState = Object.assign(appState, d);
+  } catch(e){}
+}
+
+// ========== INIT ==========
+load();
+
+function init() {
+  renderBgSwatches();
+  renderAccentSwatches();
+  renderEmojiGrid();
+  renderTemplates();
+  renderFields();
+  renderStatusLabels();
+  applyTheme();
+  document.getElementById('appNameInput').value = appState.name;
+  document.getElementById('headerTitle').textContent = appState.name;
+  document.getElementById('customAccentInput').value = appState.accent;
+  renderItems();
+  showScreen('items');
+}
+
+// ========== THEME ==========
+function applyTheme() {
+  document.body.className = appState.bg !== 'default' ? 'bg-' + appState.bg : '';
+  document.documentElement.style.setProperty('--accent', appState.accent);
+}
+
+function renderBgSwatches() {
+  const c = document.getElementById('bgSwatches');
+  c.innerHTML = BG_THEMES.map(t =>
+    `<div class="swatch ${appState.bg===t.id?'active':''}" style="background:${t.color}" title="${t.label}" onclick="setBg('${t.id}',this)"></div>`
+  ).join('');
+}
+
+function setBg(id, el) {
+  appState.bg = id;
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  applyTheme(); save();
+}
+
+function renderAccentSwatches() {
+  const c = document.getElementById('accentSwatches');
+  c.innerHTML = ACCENT_COLORS.map(color =>
+    `<div class="accent-dot ${appState.accent===color?'active':''}" style="background:${color}" onclick="setAccent('${color}',this)"></div>`
+  ).join('');
+}
+
+function setAccent(color, el) {
+  appState.accent = color;
+  document.querySelectorAll('.accent-dot').forEach(d=>d.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('customAccentInput').value = color;
+  applyTheme(); save();
+}
+
+function setCustomAccent(color) {
+  appState.accent = color;
+  document.querySelectorAll('.accent-dot').forEach(d=>d.classList.remove('active'));
+  applyTheme(); save();
+}
+
+function renderEmojiGrid() {
+  const c = document.getElementById('emojiGrid');
+  c.innerHTML = EMOJIS.map(e =>
+    `<div style="font-size:26px;cursor:pointer;padding:6px;border-radius:10px;border:2px solid ${appState.emoji===e?'var(--accent)':'transparent'};background:${appState.emoji===e?'var(--bg)':'transparent'}" onclick="setEmoji('${e}',this)">${e}</div>`
+  ).join('');
+}
+
+function setEmoji(e, el) {
+  appState.emoji = e;
+  document.querySelectorAll('#emojiGrid > div').forEach(d=>{ d.style.borderColor='transparent'; d.style.background='transparent'; });
+  el.style.borderColor='var(--accent)'; el.style.background='var(--bg)';
+  save();
+}
+
+function updateAppName() {
+  const v = document.getElementById('appNameInput').value || 'My Inventory';
+  appState.name = v;
+  document.getElementById('headerTitle').textContent = v;
+  save();
+}
+
+// ========== TEMPLATES ==========
+function renderTemplates() {
+  const c = document.getElementById('templateGrid');
+  c.innerHTML = TEMPLATES.map(t =>
+    `<div class="template-card" onclick="applyTemplate('${t.id}',this)">
+      <div class="template-icon">${t.icon}</div>
+      <div class="template-name">${t.name}</div>
+      <div class="template-desc">${t.desc}</div>
+    </div>`
+  ).join('');
+}
+
+function applyTemplate(id, el) {
+  const t = TEMPLATES.find(x=>x.id===id);
+  if (!t) return;
+  appState.emoji = t.icon;
+  appState.fields.forEach(f => { f.enabled = t.fields.includes(f.id); });
+  document.querySelectorAll('.template-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  renderEmojiGrid(); renderFields(); save();
+  setTimeout(()=>{ switchTab('fields'); }, 400);
+}
+
+// ========== FIELDS ==========
+function renderFields() {
+  const c = document.getElementById('fieldsList');
+  const fields = appState.fields;
+  c.innerHTML = fields.map((f,i) =>
+    `<div class="field-row">
+      <span class="field-drag">⠿</span>
+      <div class="field-info">
+        <div class="field-name">${f.label}</div>
+        <div class="field-type">${getTypeLabel(f.type)}${f.required?' · Required':''}</div>
+      </div>
+      <div class="toggle ${f.enabled?'on':''}" onclick="toggleField(${i},this)"></div>
+      ${!f.system?`<button onclick="deleteField(${i})" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text2);padding:4px">✕</button>`:''}
+    </div>`
+  ).join('');
+}
+
+function getTypeLabel(type) {
+  const map = { text:'Text', number:'Number', money:'Money', date:'Date', select:'Dropdown', note:'Notes', status:'Status', photo:'Photo' };
+  return map[type] || type;
+}
+
+function toggleField(i, el) {
+  appState.fields[i].enabled = !appState.fields[i].enabled;
+  el.classList.toggle('on');
+  save();
+}
+
+function deleteField(i) {
+  if (!confirm('Remove this field?')) return;
+  appState.fields.splice(i, 1);
+  renderFields(); save();
+}
+
+let selectedFieldType = 'text';
+function selectFieldType(type, el) {
+  selectedFieldType = type;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('selectOptionsGroup').style.display = type==='select'?'block':'none';
+}
+
+function saveField() {
+  const name = document.getElementById('newFieldName').value.trim();
+  if (!name) { alert('Please enter a field name'); return; }
+  const required = document.getElementById('requiredToggle').classList.contains('on');
+  const field = {
+    id: 'custom_' + Date.now(), label: name, type: selectedFieldType,
+    enabled: true, required, system: false
+  };
+  if (selectedFieldType === 'select') {
+    field.options = document.getElementById('selectOptions').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  }
+  appState.fields.push(field);
+  renderFields(); save();
+  closeModal('addFieldModal');
+  document.getElementById('newFieldName').value = '';
+}
+
+// ========== STATUS LABELS ==========
+function renderStatusLabels() {
+  const c = document.getElementById('statusLabelsList');
+  c.innerHTML = appState.statusLabels.map((s,i) =>
+    `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <input class="input" value="${s}" style="flex:1;padding:8px 12px" onchange="updateStatus(${i},this.value)">
+      <button onclick="removeStatus(${i})" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text2)">✕</button>
+    </div>`
+  ).join('');
+}
+
+function addStatusLabel() {
+  appState.statusLabels.push('New Status');
+  renderStatusLabels(); save();
+}
+function updateStatus(i,v) { appState.statusLabels[i]=v; save(); }
+function removeStatus(i) { if(appState.statusLabels.length<2){alert('Need at least one status');return;} appState.statusLabels.splice(i,1); renderStatusLabels(); save(); }
+
+// ========== ITEMS ==========
+let viewMode = 'grid';
+function setView(mode) {
+  viewMode = mode;
+  document.getElementById('viewGrid').classList.toggle('active', mode==='grid');
+  document.getElementById('viewList').classList.toggle('active', mode==='list');
+  renderItems();
+}
+
+function renderItems() {
+  const search = (document.getElementById('searchInput').value||'').toLowerCase();
+  const active = document.querySelector('.pill.active');
+  const filterVal = active ? active.dataset.filter : 'all';
+
+  let items = appState.items.filter(item => {
+    if (search) {
+      const nameField = item.fields?.name || '';
+      if (!nameField.toLowerCase().includes(search)) return false;
+    }
+    if (filterVal !== 'all') {
+      if (item.fields?.status !== filterVal) return false;
+    }
+    return true;
+  });
+
+  // Stats
+  const statsBar = document.getElementById('statsBar');
+  if (appState.items.length > 0) {
+    statsBar.style.display = 'flex';
+    document.getElementById('statTotal').textContent = appState.items.length;
+    const firstStatus = appState.statusLabels[0];
+    const activeCount = appState.items.filter(i=>i.fields?.status===firstStatus).length;
+    document.getElementById('statActive').textContent = activeCount;
+    document.getElementById('statActiveLabel').textContent = firstStatus;
+    const paidField = appState.fields.find(f=>f.id==='price_paid'&&f.enabled);
+    if (paidField) {
+      const total = appState.items.reduce((s,i)=>s+(parseFloat(i.fields?.price_paid)||0),0);
+      document.getElementById('statValue').textContent = '$'+total.toFixed(0);
+      document.getElementById('statValueLabel').textContent = 'Total Paid';
+    } else {
+      document.getElementById('statValue').textContent = '';
+      document.getElementById('statValueLabel').textContent = '';
+    }
+  } else {
+    statsBar.style.display = 'none';
+  }
+
+  // Filter pills
+  const pillsEl = document.getElementById('filterPills');
+  const pills = ['all', ...appState.statusLabels];
+  pillsEl.innerHTML = pills.map(p =>
+    `<div class="pill ${filterVal===p?'active':''}" data-filter="${p}" onclick="setFilter('${p}',this)">${p==='all'?'All':p}</div>`
+  ).join('');
+
+  const c = document.getElementById('itemsContainer');
+  if (items.length === 0) {
+    c.innerHTML = `<div class="empty-state"><div>${appState.emoji}</div><p>${appState.items.length===0?'No items yet.<br>Tap <strong>+</strong> to add your first one!':'No items match your search.'}</p></div>`;
+    return;
+  }
+
+  if (viewMode === 'grid') {
+    c.innerHTML = `<div class="items-grid">${items.map(item=>renderItemCard(item)).join('')}</div>`;
+  } else {
+    c.innerHTML = `<div class="items-list">${items.map(item=>renderItemListCard(item)).join('')}</div>`;
+  }
+}
+
+function setFilter(val, el) {
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  renderItems();
+}
+
+function getStatusColor(status) {
+  const idx = appState.statusLabels.indexOf(status);
+  if (idx === 0) return 'status-available';
+  if (idx === 1) return 'status-sold';
+  if (idx === 2) return 'status-pending';
+  return 'status-custom';
+}
+
+function renderItemCard(item) {
+  const photoHtml = item.photo
+    ? `<img src="${item.photo}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block">`
+    : `<div style="width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--bg)">${appState.emoji}</div>`;
+  const name = item.fields?.name || 'Untitled';
+  const status = item.fields?.status;
+  const enabledFields = appState.fields.filter(f=>f.enabled&&f.id!=='name'&&f.id!=='status'&&f.type!=='note');
+  const preview = enabledFields.length > 0 ? formatValue(item.fields?.[enabledFields[0].id], enabledFields[0].type) : '';
+  return `<div class="item-card" onclick="openDetail('${item.id}')">
+    ${photoHtml}
+    <div class="item-body">
+      <div class="item-name">${name}</div>
+      ${preview?`<div class="item-preview">${enabledFields[0].label}: ${preview}</div>`:''}
+      ${status?`<div class="item-badge ${getStatusColor(status)}">${status}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderItemListCard(item) {
+  const thumbHtml = item.photo
+    ? `<img src="${item.photo}" style="width:100%;height:100%;object-fit:cover">`
+    : appState.emoji;
+  const name = item.fields?.name || 'Untitled';
+  const status = item.fields?.status;
+  const enabledFields = appState.fields.filter(f=>f.enabled&&f.id!=='name'&&f.id!=='status'&&f.type!=='note');
+  const subs = enabledFields.slice(0,2).map(f=>`${f.label}: ${formatValue(item.fields?.[f.id],f.type)}`).join(' · ');
+  return `<div class="item-list-card" onclick="openDetail('${item.id}')">
+    <div class="item-list-thumb">${thumbHtml}</div>
+    <div class="item-list-info">
+      <div class="item-list-name">${name}</div>
+      <div class="item-list-sub">${subs||status||''}</div>
+    </div>
+    ${status?`<div class="item-badge ${getStatusColor(status)}">${status}</div>`:''}
+  </div>`;
+}
+
+function formatValue(val, type) {
+  if (!val && val!==0) return '—';
+  if (type==='money') return '$'+parseFloat(val).toFixed(2);
+  if (type==='date') return new Date(val).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  return val;
+}
+
+// ========== DETAIL ==========
+function openDetail(id) {
+  const item = appState.items.find(i=>i.id===id);
+  if (!item) return;
+  appState.editingItem = id;
+  const photoHtml = item.photo
+    ? `<img src="${item.photo}" style="width:100%;border-radius:var(--radius);margin-bottom:16px;max-height:300px;object-fit:cover">`
+    : `<div style="font-size:80px;text-align:center;padding:24px 0;margin-bottom:16px">${appState.emoji}</div>`;
+  const enabledFields = appState.fields.filter(f=>f.enabled&&f.id!=='name');
+  const fieldsHtml = enabledFields.map(f => {
+    let val = f.id==='status'
+      ? `<div class="item-badge ${getStatusColor(item.fields?.status)}" style="font-size:13px">${item.fields?.status||'—'}</div>`
+      : `<span>${formatValue(item.fields?.[f.id], f.type)||'—'}</span>`;
+    return `<div class="detail-field"><div class="detail-field-label">${f.label}</div><div class="detail-field-value">${val}</div></div>`;
+  }).join('');
+  document.getElementById('detailContent').innerHTML = `
+    ${photoHtml}
+    <div class="detail-name">${item.fields?.name||'Untitled'}</div>
+    <div class="card">${fieldsHtml}</div>
+    <div class="detail-actions">
+      <button class="btn btn-dark" style="flex:1" onclick="editItem('${id}')">✏️ Edit</button>
+      <button class="btn btn-outline" onclick="quickStatus('${id}')">🔄 Status</button>
+    </div>
+    <button class="delete-btn" onclick="deleteItem('${id}')">🗑 Delete Item</button>
+  `;
+  showScreen('detail', 'items');
+}
+
+function quickStatus(id) {
+  const item = appState.items.find(i=>i.id===id);
+  document.getElementById('statusModalTitle').textContent = 'Change Status';
+  document.getElementById('statusModalContent').innerHTML = appState.statusLabels.map(s =>
+    `<button class="btn ${item.fields?.status===s?'btn-accent':'btn-outline'}" style="width:100%;margin-bottom:8px;text-align:left;justify-content:flex-start" onclick="setItemStatus('${id}','${s}')">${s}</button>`
+  ).join('');
+  openModal('statusModal');
+}
+
+function setItemStatus(id, status) {
+  const item = appState.items.find(i=>i.id===id);
+  if (item) { item.fields = item.fields||{}; item.fields.status = status; save(); }
+  closeModal('statusModal');
+  openDetail(id);
+}
+
+function deleteItem(id) {
+  if (!confirm('Delete this item?')) return;
+  appState.items = appState.items.filter(i=>i.id!==id);
+  save(); renderItems(); goBack();
+}
+
+// ========== ADD / EDIT ITEM ==========
+function handleFab() {
+  if (appState.currentScreen === 'fields') { openModal('addFieldModal'); return; }
+  startAddItem();
+}
+
+function startAddItem(editId) {
+  appState.editingItem = editId || null;
+  const editItem = editId ? appState.items.find(i=>i.id===editId) : null;
+  document.getElementById('addItemTitle').textContent = editId ? 'Edit Item' : 'Add Item';
+  const photoInput = document.getElementById('photoInput');
+  photoInput.value = '';
+  const preview = document.getElementById('photoPreview');
+  const uploadBtn = document.getElementById('photoUploadBtn');
+  if (editItem?.photo) {
+    preview.src = editItem.photo; preview.style.display='block'; uploadBtn.style.display='none';
+  } else {
+    preview.style.display='none'; uploadBtn.style.display='flex';
+  }
+  // Store current photo
+  window._currentPhoto = editItem?.photo || null;
+
+  const enabledFields = appState.fields.filter(f=>f.enabled&&f.id!=='status');
+  document.getElementById('addFormFields').innerHTML = enabledFields.map(f => {
+    const val = editItem?.fields?.[f.id] || '';
+    return `<div class="input-group">
+      <div class="input-label">${f.label}${f.required?'*':''}</div>
+      ${renderFieldInput(f, val)}
+    </div>`;
+  }).join('') + `<div class="input-group">
+    <div class="input-label">Status</div>
+    <select class="select" id="field_status">
+      ${appState.statusLabels.map(s=>`<option ${editItem?.fields?.status===s?'selected':''}>${s}</option>`).join('')}
+    </select>
+  </div>`;
+  showScreen('add', appState.currentScreen);
+}
+
+function editItem(id) { startAddItem(id); }
+
+function renderFieldInput(f, val) {
+  if (f.type==='note') return `<textarea class="input" id="field_${f.id}" rows="3" placeholder="${f.label}…">${val}</textarea>`;
+  if (f.type==='select' && f.options) return `<select class="select" id="field_${f.id}">${f.options.map(o=>`<option ${val===o?'selected':''}>${o}</option>`).join('')}</select>`;
+  if (f.type==='money') return `<input class="input" id="field_${f.id}" type="number" step="0.01" min="0" placeholder="0.00" value="${val}">`;
+  if (f.type==='date') return `<input class="input" id="field_${f.id}" type="date" value="${val}">`;
+  if (f.type==='number') return `<input class="input" id="field_${f.id}" type="number" placeholder="${f.label}…" value="${val}">`;
+  return `<input class="input" id="field_${f.id}" type="text" placeholder="${f.label}…" value="${val}">`;
+}
+
+function handlePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    window._currentPhoto = e.target.result;
+    document.getElementById('photoPreview').src = e.target.result;
+    document.getElementById('photoPreview').style.display = 'block';
+    document.getElementById('photoUploadBtn').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveItem() {
+  const enabledFields = appState.fields.filter(f=>f.enabled&&f.id!=='status');
+  const fields = { status: document.getElementById('field_status')?.value };
+  for (const f of enabledFields) {
+    const el = document.getElementById('field_'+f.id);
+    if (!el) continue;
+    if (f.required && !el.value.trim()) { alert(`"${f.label}" is required`); el.focus(); return; }
+    fields[f.id] = el.value;
+  }
+  if (!fields.name?.trim()) { alert('Name is required'); return; }
+
+  if (appState.editingItem) {
+    const item = appState.items.find(i=>i.id===appState.editingItem);
+    if (item) { item.fields = fields; if(window._currentPhoto) item.photo = window._currentPhoto; }
+  } else {
+    appState.items.unshift({ id:'item_'+Date.now(), fields, photo: window._currentPhoto||null });
+  }
+  save(); renderItems();
+  goBack(); goBack();
+}
+
+// ========== NAVIGATION ==========
+let screenStack = ['items'];
+
+function showScreen(id, prev) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  appState.currentScreen = id;
+  document.getElementById('mainFab').style.display = ['items','fields'].includes(id) ? 'flex' : 'none';
+  // Update FAB label
+  document.getElementById('mainFab').textContent = id==='fields' ? '+' : '+';
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  screenStack = [tab];
+  showScreen(tab);
+}
+
+function goBack() {
+  screenStack.pop();
+  const prev = screenStack[screenStack.length-1] || 'items';
+  showScreen(prev);
+  if (['items','customize','fields'].includes(prev)) {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    const tabEl = document.getElementById('tab-'+prev);
+    if (tabEl) tabEl.classList.add('active');
+  }
+  renderItems();
+}
+
+function showScreen(id, prev) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id)?.classList.add('active');
+  appState.currentScreen = id;
+  if (prev) { screenStack.push(id); }
+  document.getElementById('mainFab').style.display = ['items','fields'].includes(id) ? 'flex' : 'none';
+}
+
+// ========== MODALS ==========
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) { if(e.target===this) closeModal(this.id); });
+});
+
+init();
+</script>
+</body>
+</html>
